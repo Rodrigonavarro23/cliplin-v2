@@ -1,0 +1,13 @@
+.cliplin
+.claude
+.mcp.json
+
+cliplin-cli
+cliplin-cli/**/*
+cliplin-knowledge
+cliplin-knowledge/**/*
+cliplin-mcp
+cliplin-mcp/**/*
+
+.DS_Store
+.env

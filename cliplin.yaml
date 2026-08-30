@@ -1,0 +1,5 @@
+ai_tool: claude-code
+knowledge:
+- name: cliplin-acd
+  source: https://github.com/Rodrigonavarro23/cliplin-knowledge
+  version: main

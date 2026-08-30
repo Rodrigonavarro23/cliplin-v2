@@ -1,0 +1,8 @@
+{
+  "name": "cliplin",
+  "description": "Cliplin v2 — agent-native spec-first development. ACD as the default cycle (cycle-init, cycle-run, cycle-validate), deterministic context discovery (no vector DB, no MCP server), recursive mono/multi-repo coordination via .gitmodules. No compiled binaries.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Cliplin"
+  }
+}

@@ -1,0 +1,21 @@
+# .cliplin/extensions.yml — see docs/tdrs/extension-hooks.md
+# Optional. Absence means no hooks. Delete the examples below and add your own.
+
+hooks:
+  before_cycle_init: []
+  after_cycle_init: []
+  before_cycle_run: []
+  after_cycle_run: []
+
+# Example (mandatory skill hook, no condition — always runs):
+#   after_cycle_run:
+#     - skill: security-review
+#       description: "Run this team's security checklist after every implementation session"
+#       optional: false
+
+# Example (optional script hook, with a natural-language condition):
+#   before_cycle_init:
+#     - script: hooks/notify-team-channel.sh
+#       description: "Post a heads-up to the team channel when a new feature cycle starts"
+#       optional: true
+#       condition: "only when the feature touches a public API, not internal-only changes"

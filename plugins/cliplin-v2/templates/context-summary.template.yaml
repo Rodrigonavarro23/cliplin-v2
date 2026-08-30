@@ -1,0 +1,15 @@
+# .cliplin/context-summary.yaml skeleton — see docs/tdrs/context-summary-format.md
+# Copied into a repo the first time cycle-init runs there with no existing context-summary.yaml.
+
+concepts: []
+# - term: <string>
+#   definition: <string>
+#   find_via:
+#     - <path>
+
+rules: []
+# - id: R-001
+#   summary: <string>
+#   source: <path>
+
+last_cycle: null

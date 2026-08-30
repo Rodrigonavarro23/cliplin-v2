@@ -1,0 +1,13 @@
+{
+  "name": "cliplin",
+  "owner": {
+    "name": "Cliplin"
+  },
+  "plugins": [
+    {
+      "name": "cliplin-v2",
+      "source": "./plugins/cliplin-v2",
+      "description": "Cliplin v2 — agent-native spec-first development. cycle-init/cycle-run/cycle-validate, deterministic context discovery, recursive multi-repo coordination, knowledge bundles. No CLI, no binary."
+    }
+  ]
+}

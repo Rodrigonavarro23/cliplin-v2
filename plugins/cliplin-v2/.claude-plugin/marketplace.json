@@ -1,0 +1,11 @@
+{
+  "name": "cliplin-v2-marketplace",
+  "plugins": [
+    {
+      "name": "cliplin-v2",
+      "source": "url",
+      "url": "<replace with this repo's git URL once published>",
+      "description": "Cliplin v2 — agent-native spec-first development. cycle-init/cycle-run/cycle-validate, deterministic context discovery, recursive multi-repo coordination, knowledge bundles. No CLI, no binary."
+    }
+  ]
+}

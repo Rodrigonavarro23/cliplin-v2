@@ -1,0 +1,12 @@
+# .cliplin/bundles.yaml — see docs/tdrs/knowledge-bundle-management.md
+# Optional. Absence means no bundles installed.
+
+bundles: []
+
+# Example:
+# bundles:
+#   - name: architecture-governance
+#     source: https://github.com/example-org/cliplin-bundle-architecture-governance.git
+#     version: main
+#     priority: 10
+#     enabled: true
