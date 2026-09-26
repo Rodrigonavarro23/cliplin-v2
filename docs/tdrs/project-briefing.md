@@ -1,8 +1,8 @@
 ---
 tdr: "1.0"
 id: "project-briefing"
-title: "Project Briefing — CLAUDE.md, Not a Global Agent Override"
-summary: "install.sh writes a project-scoped CLAUDE.md into the adopting project (not the plugin itself), giving Claude Code baseline Cliplin v2 awareness on every session start, no skill invocation needed. Deliberately not a plugin-level default agent override, which would apply to every project this personal-scope-installed plugin touches, not just Cliplin-governed ones."
+title: "Project Briefing — Host-native Persistent Instructions"
+summary: "The host-specific installer writes project-scoped persistent guidance: CLAUDE.md for Claude Code and AGENTS.md for Codex, preserving existing instructions in either host."
 ---
 
 # rules
@@ -20,6 +20,10 @@ Option 2 is adopted. It also restores the actual mechanism v1 used (`cliplin ini
 
 `install.sh <project-path>` (project-path form only — `--global` has no single adopting project to write into) writes `<project-path>/.claude/CLAUDE.md` from `plugins/cliplin-v2/templates/claude-md.template.md`, filled in with the project's own governing doc paths where discoverable (e.g. if `docs/adrs/` exists, reference it).
 
+`install-codex.sh <project-path>` writes or merges `<project-path>/AGENTS.md` from
+`plugins/cliplin-v2/templates/agents-md.template.md`. The semantic briefing is the
+same; only the host-native filename and delegation wording differ.
+
 **Content requirements (MUST be true of the generated file)**:
 - Short. This is a pointer/briefing, not a rulebook copy — the actual rules live in the project's own TDRs/ADRs and the plugin's skills. Repeating them here would recreate the verbosity problem this project's own comparative testing found in v1's rule files.
 - States: this project uses Cliplin v2, spec-first, ACD as the default flow.
@@ -31,11 +35,15 @@ Option 2 is adopted. It also restores the actual mechanism v1 used (`cliplin ini
 
 If `<project-path>/.claude/CLAUDE.md` already exists (the project has its own instructions for unrelated reasons), do NOT overwrite it. Append a clearly-delimited Cliplin section instead (e.g. under a `## Cliplin v2` heading), and report to the human what was appended rather than silently modifying an existing file's meaning.
 
+Apply the identical preservation rule when `AGENTS.md` already exists.
+
 ## Explicit non-goal
 
 This does not replace the `SessionStart` hook banner (`hooks/session-start.sh`) — the banner confirms the *plugin* is active and lists skills; `CLAUDE.md` gives *this specific project's* domain context. Both can be true at once; they answer different questions ("is Cliplin loaded" vs. "what does Cliplin mean for this repo").
 
 code_refs:
   - "install.sh"
+  - "install-claude.sh"
+  - "install-codex.sh"
   - "docs/tdrs/installation.md"
   - "docs/tdrs/plugin-packaging.md"

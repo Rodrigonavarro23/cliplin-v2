@@ -1,8 +1,8 @@
 # Cliplin v2
 
-**Spec-first AI development, agent-native.** No CLI. No binary. No vector database. Coordinates across repos out of the box.
+**Spec-first AI development, agent-native.** Supports Claude Code and Codex. No framework CLI, binary, or vector database. Coordinates across repos out of the box.
 
-Cliplin v2 is a plugin — 84KB, 18 files, all plain text and shell — that turns Claude Code into a disciplined spec-first development partner: every feature gets a Gherkin spec with a forced governance trail before a line of code exists, every implementation session closes with a validation report written to disk, and it knows the difference between "this repo works alone" and "this repo coordinates three others" without you ever setting a flag.
+Cliplin v2 is a dual-host plugin made from plain text and shell. It turns Claude Code or Codex into a disciplined spec-first development partner: every feature gets a Gherkin spec with a forced governance trail before a line of code exists, every implementation session closes with a validation report written to disk, and it knows the difference between "this repo works alone" and "this repo coordinates three others" without you ever setting a flag.
 
 ## Why this exists
 
@@ -14,11 +14,22 @@ Most spec-first AI tooling stops at one repo and trusts the model to remember th
 
 ## Install
 
+The plugin payload under `plugins/cliplin-v2/` is shared by both hosts. Only the
+manifest, marketplace and installer are host-specific.
+
+### Claude Code
+
 **Via Claude Code's plugin marketplace** — verified working, no publishing required:
 
 ```bash
 claude plugin marketplace add /path/to/cliplin-v2
 claude plugin install cliplin-v2@cliplin
+```
+
+Or use the repository installer:
+
+```bash
+bash install-claude.sh --marketplace
 ```
 
 Confirmed end to end with `claude plugin list` (`Status: ✔ enabled`), not just a documented file layout. Once this repo has a real git remote, swap the local path for it and anyone can install without cloning first.
@@ -31,11 +42,34 @@ claude --plugin-dir /path/to/cliplin-v2/plugins/cliplin-v2
 
 Loads for one session, `/reload-plugins` picks up edits — fastest way to iterate on the plugin itself.
 
-**`install.sh` fallback** (personal scope, `~/.claude/skills/cliplin-v2/`) still works too, but don't run it alongside the marketplace install — same plugin name, one will silently lose. See `docs/tdrs/installation.md` for the full comparison and a documented collision this project hit and fixed while building it.
+**`install.sh` / `install-claude.sh --global` fallback** (personal scope,
+`~/.claude/skills/cliplin-v2/`) still works too, but don't run it alongside the
+marketplace install — same plugin name, one will silently lose.
+
+### Codex
+
+```bash
+codex plugin marketplace add /path/to/cliplin-v2
+codex plugin add cliplin-v2@cliplin
+```
+
+Or use:
+
+```bash
+bash install-codex.sh --marketplace
+```
+
+To add persistent Cliplin guidance to one project without overwriting an existing
+instructions file:
+
+```bash
+bash install-claude.sh /path/to/project  # writes or merges .claude/CLAUDE.md
+bash install-codex.sh /path/to/project   # writes or merges AGENTS.md
+```
 
 ## Quick start
 
-Open Claude Code in your project and just ask for what you want:
+Open Claude Code or Codex in your project and ask for what you want:
 
 ```
 Add support for rate-limiting the login endpoint.

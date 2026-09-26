@@ -1,0 +1,20 @@
+{
+  "name": "cliplin",
+  "interface": {
+    "displayName": "Cliplin"
+  },
+  "plugins": [
+    {
+      "name": "cliplin-v2",
+      "source": {
+        "source": "local",
+        "path": "./plugins/cliplin-v2"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

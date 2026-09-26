@@ -16,7 +16,7 @@ Prior research and prototyping around spec-first AI-assisted development identif
 
 ## Decision
 
-Cliplin v2 is a **new, independent project**: a distributable compendium of Skills + sub-agent definitions for AI hosts (Claude Code first, via plugin), with no CLI of its own, no compiled binary, and no MCP server with a vector DB as the default mechanism.
+Cliplin v2 is a **new, independent project**: a distributable compendium of Skills + sub-agent definitions for AI hosts (Claude Code and Codex via one dual-host plugin payload), with no CLI of its own, no compiled binary, and no MCP server with a vector DB as the default mechanism.
 
 Adopted principles:
 
@@ -24,7 +24,7 @@ Adopted principles:
 2. **Deterministic context discovery**, no embeddings or vector DB: search fan-out via native host tools (grep/glob/read), orchestrated by skill — see `docs/tdrs/deterministic-context-discovery.md`.
 3. **Recursive, flagless mono-repo/multi-repo mode detection**: presence of `.gitmodules` determines whether the agent acts as coordinator (delegates) or worker (executes locally) — see `docs/tdrs/multi-repo-coordination.md`.
 4. **`context-summary.yaml` per repo** as a concept/rule map (not a file map), generated/updated at the close of each ACD cycle — see `docs/tdrs/context-summary-format.md`.
-5. **Packaged as a host plugin, no binaries**: manifest + skills + agents + shell hooks only — see `docs/tdrs/plugin-packaging.md`.
+5. **Packaged as a dual-host plugin, no binaries**: one skills/agents/templates payload with host-specific Claude Code and Codex manifests, marketplaces and installers — see `docs/tdrs/plugin-packaging.md` and `docs/tdrs/multi-host-plugin-packaging.md`.
 6. **Validation (`cycle-validate`) as a step of the interactive flow for now**, not a mechanical git hook — the pre-commit hook is deferred to a future cycle, out of scope for this ADR. **Superseded in part 2026-08-28: a consuming project built one. See the amendment below — the deferral held for `cycle-validate` itself, not for commit-time validation.**
 
 ## Consequences
@@ -38,7 +38,7 @@ Adopted principles:
 ### Negative
 - No mechanical gate (git hook) at this stage — cycle-close validation depends on the agent deciding to run `cycle-validate`, the same determinism weak point this was meant to solve, explicitly accepted as sequencing debt. **Still true as written 2026-08-28**, and narrower than it looks: a commit-time gate now exists downstream, but it does not check that `cycle-validate` ran. See the amendment.
 - Deterministic search (grep/glob) has lower recall than semantic search for paraphrased cross-repo queries; partially mitigated by `context-summary.yaml` as a concept layer, not just a file layer.
-- Requires maintaining a translation/adaptation layer per AI host if extended beyond Claude Code.
+- Requires maintaining small manifest, marketplace, installation and persistent-instruction adapters per AI host.
 
 ## Notes
 - Index in the `business-and-architecture` collection.

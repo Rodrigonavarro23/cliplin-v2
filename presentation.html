@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cliplin v2 — Presentation</title>
+<style>
+  :root{
+    --bg:#0b0d12;
+    --bg-soft:#12151d;
+    --panel:#161a24;
+    --border:#262b38;
+    --text:#eef1f7;
+    --text-dim:#9aa3b7;
+    --accent:#7dd3fc;
+    --accent-2:#a78bfa;
+    --good:#4ade80;
+    --bad:#f87171;
+    --mono: "SF Mono", "Fira Code", Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;height:100%;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    overflow:hidden;
+  }
+  #deck{
+    position:relative;
+    height:100vh;
+    width:100vw;
+  }
+  .slide{
+    position:absolute;
+    inset:0;
+    display:none;
+    flex-direction:column;
+    justify-content:center;
+    padding: 6vh 9vw;
+    opacity:0;
+    transform: translateY(14px);
+    transition: opacity .35s ease, transform .35s ease;
+  }
+  .slide.active{
+    display:flex;
+    opacity:1;
+    transform:translateY(0);
+  }
+  .kicker{
+    font-family:var(--mono);
+    font-size:.8rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:1.1rem;
+  }
+  h1{
+    font-size:clamp(2.2rem, 4.6vw, 3.6rem);
+    line-height:1.08;
+    margin:0 0 1rem 0;
+    letter-spacing:-.01em;
+  }
+  h1 .accent{ color:var(--accent); }
+  h1 .accent2{ color:var(--accent-2); }
+  h2{
+    font-size:clamp(1.5rem, 3vw, 2.1rem);
+    margin: 0 0 1.6rem 0;
+    font-weight:600;
+  }
+  .sub{
+    font-size:clamp(1.05rem, 1.6vw, 1.35rem);
+    color:var(--text-dim);
+    max-width:56ch;
+    line-height:1.5;
+    margin:0 0 0 0;
+  }
+  .lede{
+    font-size:1.15rem;
+    color:var(--text-dim);
+    max-width:70ch;
+    line-height:1.6;
+    margin-bottom:1.4rem;
+  }
+  .grid{
+    display:grid;
+    gap:1rem;
+    width:100%;
+  }
+  .grid.cols-2{ grid-template-columns:1fr 1fr; }
+  .grid.cols-3{ grid-template-columns:repeat(3,1fr); }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:1.4rem 1.5rem;
+  }
+  .card h3{
+    margin:0 0 .5rem 0;
+    font-size:1.05rem;
+    color:var(--accent);
+    font-family:var(--mono);
+    font-weight:600;
+  }
+  .card p{
+    margin:0;
+    color:var(--text-dim);
+    font-size:.95rem;
+    line-height:1.55;
+  }
+  .card .num{
+    display:inline-block;
+    font-family:var(--mono);
+    font-size:.75rem;
+    color:var(--bg);
+    background:var(--accent);
+    border-radius:6px;
+    padding:.1rem .45rem;
+    margin-bottom:.6rem;
+  }
+  code, .mono{
+    font-family:var(--mono);
+    font-size:.92em;
+    background:var(--bg-soft);
+    border:1px solid var(--border);
+    border-radius:5px;
+    padding:.1rem .4rem;
+    color:var(--accent);
+  }
+  pre{
+    font-family:var(--mono);
+    font-size:.92rem;
+    background:var(--bg-soft);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:1.1rem 1.3rem;
+    overflow-x:auto;
+    line-height:1.6;
+    color:var(--text);
+    max-width:100%;
+  }
+  pre .c1{ color:var(--text-dim); }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:.98rem;
+  }
+  th,td{
+    text-align:left;
+    padding:.7rem 1rem;
+    border-bottom:1px solid var(--border);
+  }
+  th{
+    color:var(--accent);
+    font-family:var(--mono);
+    font-weight:600;
+    font-size:.82rem;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+  }
+  td{ color:var(--text-dim); }
+  td.strong{ color:var(--text); }
+  ul.plain{ margin:0; padding:0; list-style:none; }
+  ul.plain li{
+    position:relative;
+    padding-left:1.4rem;
+    margin-bottom:.7rem;
+    color:var(--text-dim);
+    font-size:1.02rem;
+    line-height:1.55;
+  }
+  ul.plain li::before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:.55em;
+    width:6px;height:6px;
+    border-radius:50%;
+    background:var(--accent);
+  }
+  ul.plain li strong{ color:var(--text); }
+  .badge-row{ display:flex; gap:.6rem; flex-wrap:wrap; margin-top:1.2rem; }
+  .badge{
+    font-family:var(--mono);
+    font-size:.78rem;
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:.35rem .85rem;
+    color:var(--text-dim);
+  }
+  .badge.good{ color:var(--good); border-color:#1e3d2c; background:#0e1a13; }
+  .badge.bad{ color:var(--bad); border-color:#3d1e1e; background:#1a0e0e; }
+  .score{
+    font-family:var(--mono);
+    font-size:.85rem;
+  }
+  .score .fill{ color:var(--accent); }
+  .score .empty{ color:var(--border); }
+  .footer-note{
+    margin-top:2rem;
+    font-size:.85rem;
+    color:var(--text-dim);
+    font-family:var(--mono);
+  }
+  /* progress + nav */
+  #progress{
+    position:fixed;
+    top:0;left:0;
+    height:3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transition: width .35s ease;
+    z-index:20;
+  }
+  #hud{
+    position:fixed;
+    bottom:1.4rem;
+    right:1.6rem;
+    display:flex;
+    align-items:center;
+    gap:.8rem;
+    font-family:var(--mono);
+    font-size:.8rem;
+    color:var(--text-dim);
+    z-index:20;
+  }
+  #hud button{
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--text);
+    width:2.1rem;height:2.1rem;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:1rem;
+    display:flex;align-items:center;justify-content:center;
+    transition:border-color .15s ease;
+  }
+  #hud button:hover{ border-color:var(--accent); color:var(--accent); }
+  #dots{
+    position:fixed;
+    bottom:1.5rem;
+    left:1.6rem;
+    display:flex;
+    gap:.4rem;
+    z-index:20;
+  }
+  #dots span{
+    width:7px;height:7px;
+    border-radius:50%;
+    background:var(--border);
+    cursor:pointer;
+    transition:background .2s ease, transform .2s ease;
+  }
+  #dots span.active{ background:var(--accent); transform:scale(1.3); }
+  .flow{
+    display:flex;
+    align-items:stretch;
+    gap:.9rem;
+    width:100%;
+    flex-wrap:wrap;
+  }
+  .flow .step{
+    flex:1;
+    min-width:220px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:1.3rem 1.4rem;
+    position:relative;
+  }
+  .flow .step h3{
+    font-family:var(--mono);
+    color:var(--accent-2);
+    margin:0 0 .5rem;
+    font-size:1rem;
+  }
+  .flow .step p{ color:var(--text-dim); font-size:.92rem; margin:0; line-height:1.5;}
+  .flow .arrow{
+    display:flex;align-items:center;justify-content:center;
+    color:var(--text-dim);
+    font-size:1.4rem;
+    padding: 0 .2rem;
+  }
+  @media (max-width: 900px){
+    .grid.cols-2, .grid.cols-3{ grid-template-columns:1fr; }
+    .flow{ flex-direction:column; }
+    .flow .arrow{ transform:rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div id="deck"></div>
+<div id="dots"></div>
+<div id="hud">
+  <button id="prevBtn" aria-label="Previous">←</button>
+  <span id="counter">1 / 1</span>
+  <button id="nextBtn" aria-label="Next">→</button>
+</div>
+
+<script>
+const slidesHTML = [
+
+// 1 — Title
+`<div class="kicker">Spec-first AI development / Agent-native</div>
+ <h1>Cliplin <span class="accent">v2</span></h1>
+ <p class="sub">A dual-host plugin — no CLI, no binary, no vector database — that turns Claude Code or Codex into a disciplined spec-first development partner.</p>
+ <div class="badge-row">
+   <span class="badge">Claude Code</span>
+   <span class="badge">Codex</span>
+   <span class="badge">Plain text + shell</span>
+   <span class="badge good">Verified end to end</span>
+ </div>`,
+
+// 2 — Why this exists (problem)
+`<div class="kicker">Why this exists</div>
+ <h2>Most spec-first AI tooling stops at one repo<br>and trusts the model to remember the rules.</h2>
+ <div class="grid cols-3">
+   <div class="card">
+     <div class="num">01</div>
+     <h3>real projects span repos</h3>
+     <p>A feature touching an API and three consumers needs more than "hope the agent figures out which repos matter."</p>
+   </div>
+   <div class="card">
+     <div class="num">02</div>
+     <h3>"remembering" isn't a guarantee</h3>
+     <p>If validation only lives in the model's memory, there is nothing mechanical to check it actually ran.</p>
+   </div>
+   <div class="card">
+     <div class="num">03</div>
+     <h3>semantic search is overkill</h3>
+     <p>Specs are small, structured, path-routable text — not a corpus that needs embeddings and a vector DB.</p>
+   </div>
+ </div>`,
+
+// 3 — Decision / what it is
+`<div class="kicker">ADR-000 — Accepted</div>
+ <h2>A compendium of skills and sub-agents.<br>Not a new framework binary.</h2>
+ <ul class="plain">
+   <li><strong>ACD is the native default flow</strong> — not an optional knowledge package. Expressed as skills: <code>cycle-init</code>, <code>cycle-run</code>, <code>cycle-validate</code>.</li>
+   <li><strong>Deterministic context discovery</strong> — grep / glob / read, orchestrated by the skill. No embeddings, no index to keep in sync.</li>
+   <li><strong>Flagless mode detection</strong> — presence of <code>.gitmodules</code> decides coordinator vs. worker, recursively.</li>
+   <li><strong><code>context-summary.yaml</code> per repo</strong> — a concept/rule map, regenerated at the close of every cycle.</li>
+   <li><strong>Dual-host plugin, no binaries</strong> — one skills/agents/templates payload, host-specific manifests only.</li>
+ </ul>`,
+
+// 4 — Three-part spec model
+`<div class="kicker">How it's built</div>
+ <h2>Three-part specification model — kept deliberately small</h2>
+ <table>
+   <tr><th>Artifact</th><th>Answers</th><th>Lives in</th></tr>
+   <tr><td class="strong"><code>.feature</code> (Gherkin)</td><td>What the system does, and why</td><td><code>docs/features/</code></td></tr>
+   <tr><td class="strong">TDR</td><td>How to build it correctly</td><td><code>docs/tdrs/</code></td></tr>
+   <tr><td class="strong">ADR / business doc</td><td>Why this decision, over the alternatives</td><td><code>docs/adrs/</code>, <code>docs/business/</code></td></tr>
+ </table>
+ <p class="footer-note">Every TDR/ADR carries a <code>find_via</code>-linked concept map so an agent can answer "was this already decided?" by reading one small file first.</p>`,
+
+// 5 — Quick start / cycle flow
+`<div class="kicker">Quick start</div>
+ <h2>Ask for what you want. Cliplin takes it from there.</h2>
+ <pre>&gt; Add support for rate-limiting the login endpoint.</pre>
+ <div class="flow">
+   <div class="step">
+     <h3>cycle-init</h3>
+     <p>New behavior or evolution? Loads governing context, asks up to 3 sharp questions only if genuinely ambiguous, drafts a <code>.feature</code> with a <code>@constraints</code> block.</p>
+   </div>
+   <div class="arrow">→</div>
+   <div class="step">
+     <h3>cycle-run</h3>
+     <p>Implements the approved cycle in small, atomic sessions — max 3 scenarios at a time.</p>
+   </div>
+   <div class="arrow">→</div>
+   <div class="step">
+     <h3>cycle-validate</h3>
+     <p>Closes every session with a written, evidence-backed report — pass or fail, every time.</p>
+   </div>
+ </div>`,
+
+// 6 — Multi-repo coordination
+`<div class="kicker">Coordinates across repos, for real</div>
+ <h2>No flag. No config. Just <code>.gitmodules</code>.</h2>
+ <p class="lede">Drop child repos in as git submodules and Cliplin recognizes it's coordinating instead of working alone. It dispatches a lightweight <strong>scout</strong> to each candidate repo first — a cheap relevance check — then a full <strong>worker</strong> sub-agent only where it matters.</p>
+ <div class="grid cols-2">
+   <div class="card">
+     <h3>scout</h3>
+     <p>Reads only that repo's <code>context-summary.yaml</code>. Judges relevance. Never opens the full docs tree.</p>
+   </div>
+   <div class="card">
+     <h3>cycle-worker</h3>
+     <p>Spawned only where the scout flagged relevance. Re-enters <code>cycle-init</code> for its own repo — recursion, not a separate code path.</p>
+   </div>
+ </div>
+ <p class="footer-note">Tested against Express.js's core + two of its middleware packages — end to end, including the escalation path when a child repo has no specs yet.</p>`,
+
+// 7 — Validates mechanically
+`<div class="kicker">Validates mechanically, not on faith</div>
+ <h2>Evidence written to disk before it tells you anything</h2>
+ <pre>.cliplin/cycles/&lt;id&gt;.json</pre>
+ <p class="lede">Pass or fail, every time. You can check whether validation actually ran without re-reading the conversation.</p>
+ <p class="footer-note">Bonus capability: <code>reverse-engineer</code> can bootstrap specs from a repo with none — README, source and tests in, real ADRs/TDRs/<code>.feature</code> files out. Run once against an unmodified open-source package: <strong>2 ADRs, 4 TDRs, 12 scenarios, zero lines of source touched.</strong></p>`,
+
+// 8 — Downstream proof: commit-time gate
+`<div class="kicker">Amendment 2026-08-28</div>
+ <h2>A consuming project proved the pattern downstream</h2>
+ <p class="lede"><code>wedov2</code> added a pre-commit gate (<code>acd-commit-validator</code> + <code>acd-commit-msg-validator</code>) that blocks a commit when staged artifacts don't hang together. Not shipped by the framework — proven by a real adopter.</p>
+ <p class="lede">In one day of use it caught findings a green test suite missed:</p>
+ <ul class="plain">
+   <li>a route group widened to accept a second credential, with <strong>no governing spec</strong></li>
+   <li>a scenario tagged <code>@status:implemented</code> whose code did the <strong>opposite</strong> — twice</li>
+   <li>an exported method with <strong>no production caller</strong></li>
+ </ul>
+ <p class="footer-note">Common shape: every one was a claim the artifacts made that the code did not keep — found by reading the call chain, never by running the tests.</p>`,
+
+// 9 — Measured against Spec Kit
+`<div class="kicker">Measured against GitHub Spec Kit</div>
+ <h2>We installed both and ran the same scenario</h2>
+ <p class="lede">Same multi-repo scenario, same real open-source repos, each other's actual source read — not assumed. Full write-up scored across 10 dimensions in the project's own governance docs.</p>
+ <div class="grid cols-2">
+   <div class="card">
+     <h3>Spec Kit wins</h3>
+     <p>More mature. Easier to read as a single document.</p>
+   </div>
+   <div class="card">
+     <h3>Cliplin wins</h3>
+     <p>The only one of the two that coordinates multiple repos, or bootstraps specs from code that has none — verified, not claimed.</p>
+   </div>
+ </div>`,
+
+// 10 — Install
+`<div class="kicker">Install</div>
+ <h2>One shared payload. Host-specific manifests.</h2>
+ <div class="grid cols-2">
+   <div class="card">
+     <h3>Claude Code</h3>
+     <pre>claude plugin marketplace add /path/to/cliplin-v2
+claude plugin install cliplin-v2@cliplin</pre>
+   </div>
+   <div class="card">
+     <h3>Codex</h3>
+     <pre>codex plugin marketplace add /path/to/cliplin-v2
+codex plugin add cliplin-v2@cliplin</pre>
+   </div>
+ </div>
+ <p class="footer-note">Confirmed end to end with <code>claude plugin list</code> (Status: ✔ enabled) — not just a documented file layout.</p>`,
+
+// 11 — What's not done yet
+`<div class="kicker">Honest about gaps</div>
+ <h2>What's not done yet</h2>
+ <div class="grid cols-3">
+   <div class="card">
+     <h3>no framework hook</h3>
+     <p>A failed validation report doesn't block a commit today — visible, not enforced by the plugin itself.</p>
+   </div>
+   <div class="card">
+     <h3>no bundle catalog</h3>
+     <p>Knowledge bundles are added by git URL — no search or discovery service.</p>
+   </div>
+   <div class="card">
+     <h3>no production track record</h3>
+     <p>Beyond the sessions that built this and the one downstream adopter.</p>
+   </div>
+ </div>
+ <p class="footer-note">None of this is hidden — <code>docs/adrs/000-cliplin-v2-agent-native.md</code> lists it as a Consequence, not a surprise you find later.</p>`,
+
+// 12 — Closing
+`<div class="kicker">Learn more</div>
+ <h1>Spec-first. <span class="accent">Agent-native.</span><br>Grounded in evidence, <span class="accent2">not vibes.</span></h1>
+ <ul class="plain">
+   <li><code>docs/business/cliplin-framework.md</code> — what Cliplin is and why it's shaped this way</li>
+   <li><code>docs/business/acd-framework.md</code> — the delivery discipline every cycle follows</li>
+   <li><code>docs/adrs/000-cliplin-v2-agent-native.md</code> — full architectural decisions and trade-offs</li>
+   <li><code>docs/tdrs/</code> — every technical rule the agent follows, five minutes each</li>
+ </ul>`,
+];
+
+const deck = document.getElementById('deck');
+slidesHTML.forEach((html, i) => {
+  const el = document.createElement('div');
+  el.className = 'slide';
+  el.innerHTML = html;
+  deck.appendChild(el);
+});
+
+const slides = document.querySelectorAll('.slide');
+const dotsWrap = document.getElementById('dots');
+slides.forEach((_, i) => {
+  const d = document.createElement('span');
+  d.addEventListener('click', () => goTo(i));
+  dotsWrap.appendChild(d);
+});
+const dots = document.querySelectorAll('#dots span');
+const progress = document.getElementById('progress');
+const counter = document.getElementById('counter');
+
+let current = 0;
+function render(){
+  slides.forEach((s, i) => s.classList.toggle('active', i === current));
+  dots.forEach((d, i) => d.classList.toggle('active', i === current));
+  progress.style.width = ((current + 1) / slides.length * 100) + '%';
+  counter.textContent = (current + 1) + ' / ' + slides.length;
+}
+function goTo(i){
+  current = Math.max(0, Math.min(slides.length - 1, i));
+  render();
+}
+function next(){ goTo(current + 1); }
+function prev(){ goTo(current - 1); }
+
+document.getElementById('nextBtn').addEventListener('click', next);
+document.getElementById('prevBtn').addEventListener('click', prev);
+
+window.addEventListener('keydown', (e) => {
+  if (['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)) { next(); e.preventDefault(); }
+  if (['ArrowLeft','ArrowUp','PageUp'].includes(e.key)) { prev(); e.preventDefault(); }
+  if (e.key === 'Home') goTo(0);
+  if (e.key === 'End') goTo(slides.length - 1);
+});
+
+let touchStartX = null;
+window.addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
+window.addEventListener('touchend', e => {
+  if (touchStartX === null) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (dx < -40) next();
+  if (dx > 40) prev();
+  touchStartX = null;
+});
+
+render();
+</script>
+</body>
+</html>

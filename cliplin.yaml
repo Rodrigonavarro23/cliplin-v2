@@ -1,4 +1,7 @@
 ai_tool: claude-code
+supported_ai_tools:
+- claude-code
+- codex
 knowledge:
 - name: cliplin-acd
   source: https://github.com/Rodrigonavarro23/cliplin-knowledge

@@ -1,8 +1,8 @@
 ---
 tdr: "1.0"
 id: "plugin-packaging"
-title: "Plugin Packaging — No Binaries, No Compiled CLI"
-summary: "File layout for distributing Cliplin v2 as a Claude Code plugin: manifest, skills, agents, templates, and shell-script-only hooks. No compiled binaries, no separate CLI to install."
+title: "Plugin Packaging — Dual Host, No Binaries or Compiled CLI"
+summary: "File layout for distributing one Cliplin v2 payload to Claude Code and Codex: host manifests plus shared skills, agents, templates and shell resources."
 ---
 
 # rules
@@ -17,6 +17,8 @@ This rules out per-architecture compiled binaries and any hook that registers a 
 
 ```
 cliplin/
+├── .codex-plugin/
+│   └── plugin.json                    # Codex identity and skills discovery
 ├── .claude-plugin/
 │   └── plugin.json                   # manifest: name, description, version, author ONLY — no hooks here
 ├── skills/
@@ -41,6 +43,10 @@ cliplin/
 
 - `plugin.json` declares identity only (`name`, `description`, `version`, `author`) — it does NOT declare hooks inline. This was corrected after a real failure: an earlier revision put `hooks.SessionStart` directly in `plugin.json`, which does not match Claude Code's actual plugin schema and silently failed to register (confirmed against the official plugin docs, not assumed).
 - No `.mcp.json` — this plugin does not register an MCP server (see `docs/tdrs/deterministic-context-discovery.md`).
+
+The Codex manifest lives separately at `.codex-plugin/plugin.json` and declares the
+shared `./skills/` path. Neither host manifest replaces or embeds the other. See
+`docs/tdrs/multi-host-plugin-packaging.md` for marketplace and installer adapters.
 
 ## `hooks/hooks.json` rules (MUST follow — corrects an earlier mistake)
 

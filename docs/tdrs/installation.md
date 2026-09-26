@@ -1,11 +1,21 @@
 ---
 tdr: "1.0"
 id: "installation"
-title: "Installation — Local Marketplace (Verified Working)"
-summary: "Confirmed end-to-end via claude plugin list showing Status: enabled, not just documented file layout. Repo root is a marketplace (.claude-plugin/marketplace.json); the actual plugin lives nested at plugins/cliplin-v2/. install.sh remains as a fallback for hosts that skip the marketplace flow."
+title: "Installation — Claude Code and Codex Local Marketplaces"
+summary: "The repository exposes host-specific marketplace manifests over one shared plugin payload. Claude Code is verified end-to-end; the Codex package is schema-validated and uses Codex's native marketplace commands."
 ---
 
 # rules
+
+## Host selection
+
+- Claude Code: `bash install-claude.sh --marketplace`, or the legacy-compatible
+  `bash install.sh --global` skills-directory fallback.
+- Codex: `bash install-codex.sh --marketplace`.
+- Project briefing only: pass a project path to the corresponding installer. Claude
+  writes/merges `.claude/CLAUDE.md`; Codex writes/merges `AGENTS.md`.
+- Both marketplaces install the canonical payload at `plugins/cliplin-v2`; never
+  fork or copy the skills by host.
 
 ## What's actually verified now (MUST trust this over earlier revisions of this TDR)
 
