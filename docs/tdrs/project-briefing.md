@@ -31,6 +31,26 @@ same; only the host-native filename and delegation wording differ.
 - States the one behavioral rule that actually matters at session-start time: new/changed behavior needs `cycle-init` before code; an already-approved `.feature` goes straight to `cycle-run`.
 - Mentions `.cliplin/context-summary.yaml` as the fast "was this already decided" lookup.
 
+## In-host adoption: `project-init` skill (MUST prefer this over the installer path)
+
+A globally or marketplace-installed plugin has no project to write into, so the
+installer's `<project-path>` form forced a second trip to the shell. The
+`project-init` skill (`plugins/cliplin-v2/skills/project-init/SKILL.md`) does the
+same adoption from inside the host:
+
+- `AGENTS.md` is the canonical, host-neutral briefing
+  (`templates/agents-md.template.md`), including the routing discipline.
+- Claude Code: `CLAUDE.md` (root, or `.claude/CLAUDE.md` if that is what exists)
+  gets an `@AGENTS.md` import instead of a copy — one source of truth.
+- Claude Code: writes `.claude/agents/cliplin.md` from
+  `templates/cliplin-agent.template.md` and sets `"agent": "cliplin"` in
+  `.claude/settings.json`, per `docs/tdrs/main-thread-agent.md`.
+- Scaffolds `docs/{features,tdrs,adrs,business}/` and `.cliplin/` (with
+  `.gitkeep`), but never `context-summary.yaml`.
+- Same merge rules as below; idempotent.
+
+The installer `<project-path>` forms remain as a shell fallback.
+
 ## Merge behavior (MUST follow)
 
 If `<project-path>/.claude/CLAUDE.md` already exists (the project has its own instructions for unrelated reasons), do NOT overwrite it. Append a clearly-delimited Cliplin section instead (e.g. under a `## Cliplin v2` heading), and report to the human what was appended rather than silently modifying an existing file's meaning.
@@ -42,6 +62,9 @@ Apply the identical preservation rule when `AGENTS.md` already exists.
 This does not replace the `SessionStart` hook banner (`hooks/session-start.sh`) — the banner confirms the *plugin* is active and lists skills; `CLAUDE.md` gives *this specific project's* domain context. Both can be true at once; they answer different questions ("is Cliplin loaded" vs. "what does Cliplin mean for this repo").
 
 code_refs:
+  - "plugins/cliplin-v2/skills/project-init/SKILL.md"
+  - "plugins/cliplin-v2/templates/agents-md.template.md"
+  - "plugins/cliplin-v2/templates/cliplin-agent.template.md"
   - "install.sh"
   - "install-claude.sh"
   - "install-codex.sh"

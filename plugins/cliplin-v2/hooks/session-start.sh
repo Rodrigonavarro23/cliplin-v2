@@ -16,6 +16,10 @@ Skills available:
                                     cycle-validate inline
   deterministic-context-discovery — grep/glob fan-out procedure used by the skills above
   context-summary-sync           — regenerates .cliplin/context-summary.yaml at cycle close
+  project-init                   — adopts this repo: AGENTS.md briefing, CLAUDE.md import,
+                                    default `cliplin` main-thread agent, docs/ scaffold
+  reverse-engineer               — bootstraps baseline specs from existing code (on request)
+  knowledge-bundle               — installs git-sourced TDR/ADR packages
 
 Mandatory before any task:
   1. cycle-init reads .gitmodules first — no mode flag, ever
@@ -23,3 +27,9 @@ Mandatory before any task:
   3. Never start cycle-run without a complete @constraints block (governed_by non-empty)
   4. See docs/adrs/000-cliplin-v2-agent-native.md for the full rationale
 EOF
+
+# Nudge toward project-init when the current repo hasn't adopted Cliplin yet.
+if ! grep -qs '^## Cliplin v2$' "$PWD/AGENTS.md"; then
+  echo
+  echo "This repo has no Cliplin briefing in AGENTS.md — run the project-init skill to adopt it."
+fi

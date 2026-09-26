@@ -32,14 +32,16 @@ if [ "$1" = "--global" ]; then
   TARGET_ROOT="$HOME/.claude/skills/$PLUGIN_NAME"
   mkdir -p "$TARGET_ROOT"
 
-  cp -R "$SRC_DIR/.claude-plugin" "$TARGET_ROOT/.claude-plugin"
-  cp -R "$SRC_DIR/skills" "$TARGET_ROOT/skills"
-  cp -R "$SRC_DIR/agents" "$TARGET_ROOT/agents"
-  cp -R "$SRC_DIR/hooks" "$TARGET_ROOT/hooks"
-  cp -R "$SRC_DIR/templates" "$TARGET_ROOT/templates"
+  # Replace plugin-owned dirs wholesale so a re-install updates instead of nesting
+  # (cp -R into an existing dir would create skills/skills/).
+  for dir in .claude-plugin skills agents hooks templates; do
+    rm -rf "${TARGET_ROOT:?}/$dir"
+    cp -R "$SRC_DIR/$dir" "$TARGET_ROOT/$dir"
+  done
 
   echo "Cliplin v2 plugin installed at $TARGET_ROOT"
   echo "Start or restart Claude Code to pick it up."
+  echo "Then, inside each project, ask Claude to run the project-init skill."
   exit 0
 fi
 

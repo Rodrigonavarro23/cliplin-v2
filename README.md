@@ -12,70 +12,117 @@ Most spec-first AI tooling stops at one repo and trusts the model to remember th
 - **"The model should remember to validate" isn't a real guarantee.** Cliplin's `cycle-validate` writes an evidence-backed report to disk — `.cliplin/cycles/<id>.json` — every time, pass or fail, before it tells you anything. You can check whether validation actually ran without re-reading the conversation.
 - **Semantic search is the wrong tool for a folder of markdown.** Specs are small, structured, and path-routable. Cliplin finds them with `grep`/`glob`/`read`, orchestrated by the model's own reasoning — no embeddings, no index to keep in sync, no server to run.
 
-## Install
+## Getting started
 
-The plugin payload under `plugins/cliplin-v2/` is shared by both hosts. Only the
-manifest, marketplace and installer are host-specific.
+The recommended path: install Cliplin **once, globally**, then adopt each project
+from inside Claude Code with the `project-init` skill. No per-project installer, no
+CLI.
 
-### Claude Code
-
-**Via Claude Code's plugin marketplace** — verified working, no publishing required:
-
-```bash
-claude plugin marketplace add /path/to/cliplin-v2
-claude plugin install cliplin-v2@cliplin
-```
-
-Or use the repository installer:
+### 1. Install globally (once per machine)
 
 ```bash
-bash install-claude.sh --marketplace
+git clone <this-repo> ~/code/cliplin-v2
+bash ~/code/cliplin-v2/install-claude.sh --global
 ```
 
-Confirmed end to end with `claude plugin list` (`Status: ✔ enabled`), not just a documented file layout. Once this repo has a real git remote, swap the local path for it and anyone can install without cloning first.
+This copies the plugin to `~/.claude/skills/cliplin-v2/`, so it loads in every
+Claude Code session. To update later, `git pull` and run the same command again; it
+replaces the installed copy instead of duplicating it.
 
-**Local dev loop, no install at all:**
+Restart Claude Code. The session banner reads `CLIPLIN V2 PLUGIN ACTIVE`. In a repo
+that hasn't adopted Cliplin yet, the banner ends with a hint to run `project-init`.
 
-```bash
-claude --plugin-dir /path/to/cliplin-v2/plugins/cliplin-v2
+### 2. Initialize a project (once per repo)
+
+Open Claude Code in the repo and say:
+
+```
+run the project-init skill
 ```
 
-Loads for one session, `/reload-plugins` picks up edits — fastest way to iterate on the plugin itself.
+It writes:
 
-**`install.sh` / `install-claude.sh --global` fallback** (personal scope,
-`~/.claude/skills/cliplin-v2/`) still works too, but don't run it alongside the
-marketplace install — same plugin name, one will silently lose.
+| Path | What it is |
+|---|---|
+| `AGENTS.md` | The Cliplin briefing and routing rules. Single source of truth, host-neutral (Codex reads it natively). |
+| `CLAUDE.md` | One line, `@AGENTS.md`, so Claude Code loads the same briefing. |
+| `.claude/agents/cliplin.md` | The `cliplin` agent: classifies every request before acting. |
+| `.claude/settings.json` | `"agent": "cliplin"`, which makes that agent the default main thread **for this project only**. |
+| `docs/{features,tdrs,adrs,business}/`, `.cliplin/` | Empty scaffold (`.gitkeep`). |
 
-### Codex
+It's safe on repos that already have instructions:
+- Existing `AGENTS.md`/`CLAUDE.md` get a section appended, never overwritten.
+- Existing `settings.json` keys are preserved; if another `agent` is already set, it asks before changing it.
+- Running it twice changes nothing.
 
-```bash
-codex plugin marketplace add /path/to/cliplin-v2
-codex plugin add cliplin-v2@cliplin
+Nothing is committed, so review the diff and commit it yourself so your team shares the setup.
+
+**Restart the session** so the `cliplin` agent takes over.
+
+### 3. Seed specs (existing code only)
+
+If the repo already has code but no specs, `project-init` suggests running
+`reverse-engineer`. It proposes baseline ADRs, TDRs and `.feature` files from what
+the code actually does, and writes only what you approve:
+
+```
+run reverse-engineer on this repo
 ```
 
-Or use:
+Skip this on a brand-new repo.
 
-```bash
-bash install-codex.sh --marketplace
-```
-
-To add persistent Cliplin guidance to one project without overwriting an existing
-instructions file:
-
-```bash
-bash install-claude.sh /path/to/project  # writes or merges .claude/CLAUDE.md
-bash install-codex.sh /path/to/project   # writes or merges AGENTS.md
-```
-
-## Quick start
-
-Open Claude Code or Codex in your project and ask for what you want:
+### 4. Just ask for what you want
 
 ```
 Add support for rate-limiting the login endpoint.
 ```
 
-Cliplin's `cycle-init` skill takes it from there: checks whether this is new behavior or an evolution of something that already exists, loads the context that actually governs it, asks you up to 3 sharp questions if (and only if) it's genuinely ambiguous, and drafts a `.feature` file with a `@constraints` block naming exactly which decisions govern it — before proposing any code. Approve it, and `cycle-run` implements it in small, atomic sessions that close with a written validation report.
+The `cliplin` agent routes it for you:
+
+- **Behavior change, no approved spec yet** → `cycle-init`. It checks whether this is new behavior or an evolution of an existing feature, loads the governing context, and asks at most 3 sharp questions, and only if the request is genuinely ambiguous. Then it drafts a `.feature` with a `@constraints` block naming exactly which decisions govern it. No code yet.
+- **Approved spec** → `cycle-run`. It implements up to 3 scenarios per session and closes with `cycle-validate`, which writes an evidence report to `.cliplin/cycles/<id>.json` and updates `.cliplin/context-summary.yaml`.
+- **Anything else** (reading, debugging, running tests, cleanup) → proceeds normally.
+
+If the repo has git submodules, it acts as a coordinator automatically: scouts each
+child repo, then delegates to a worker where the change actually lands.
+
+## Other install options
+
+The plugin payload under `plugins/cliplin-v2/` is shared by both hosts. Only the
+manifest, marketplace and installer are host-specific. Whatever the install path,
+adopt each project with `project-init` as above.
+
+**Claude Code marketplace** (alternative to `--global`; pick one, never both, since they share a
+plugin name and one silently fails to load):
+
+```bash
+claude plugin marketplace add /path/to/cliplin-v2
+claude plugin install cliplin-v2@cliplin
+# or: bash install-claude.sh --marketplace
+```
+
+**Codex:**
+
+```bash
+codex plugin marketplace add /path/to/cliplin-v2
+codex plugin add cliplin-v2@cliplin
+# or: bash install-codex.sh --marketplace
+```
+
+In Codex, `project-init` writes only `AGENTS.md` and the scaffold.
+
+**Plugin development** (one session, no install; `/reload-plugins` picks up edits):
+
+```bash
+claude --plugin-dir /path/to/cliplin-v2/plugins/cliplin-v2
+```
+
+**Shell fallback for the briefing only** (no agent, no scaffold):
+
+```bash
+bash install-claude.sh /path/to/project  # writes or merges .claude/CLAUDE.md
+bash install-codex.sh /path/to/project   # writes or merges AGENTS.md
+```
 
 ## What it actually does
 

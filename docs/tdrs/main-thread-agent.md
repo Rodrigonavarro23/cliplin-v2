@@ -32,7 +32,11 @@ This is not a mechanical tool-blocking gate. The agent definition's `tools`/`dis
 
 This does not apply to sub-agents (`scout`, `cycle-worker`) — those already have narrow, single-purpose system prompts scoped to their delegated task and don't need this general routing discipline.
 
+Written by the `project-init` skill from `plugins/cliplin-v2/templates/cliplin-agent.template.md`.
+
 code_refs:
+  - "plugins/cliplin-v2/skills/project-init/SKILL.md"
+  - "plugins/cliplin-v2/templates/cliplin-agent.template.md"
   - "docs/tdrs/project-briefing.md"
   - "docs/tdrs/cycle-commands.md"
   - "docs/tdrs/installation.md"
