@@ -21,7 +21,7 @@ CLI.
 ### 1. Install globally (once per machine)
 
 ```bash
-git clone <this-repo> ~/code/cliplin-v2
+git clone https://github.com/Rodrigonavarro23/cliplin-v2.git ~/code/cliplin-v2
 bash ~/code/cliplin-v2/install-claude.sh --global
 ```
 
