@@ -32,6 +32,10 @@ Announce which role was detected before doing anything else.
 
 ## Coordinator procedure
 
+Before Phase 1, run **Step 1.5 (workspace isolation)** once at the coordinator root,
+using the slug resolved from the request, folded into the first prompt you show the
+human.
+
 ### Phase 1 — Scout
 
 For every submodule declared in `.gitmodules`, spawn a `scout` sub-agent (`agents/scout.md`) scoped to that submodule's path. Collect verdicts:
@@ -42,7 +46,7 @@ For every submodule declared in `.gitmodules`, spawn a `scout` sub-agent (`agent
 
 ### Phase 2 — Full
 
-For every repo marked `relevant: true`, spawn a `cycle-worker` sub-agent (`agents/cycle-worker.md`) scoped to that repo's path. Each one re-enters this skill from Step 0 for its own repo (recursion — a child with its own `.gitmodules` becomes a coordinator in turn).
+For every repo marked `relevant: true`, spawn a `cycle-worker` sub-agent (`agents/cycle-worker.md`) scoped to that repo's path. Pass along the workspace-isolation decision from Step 1.5 (option + branch name) so the worker applies it without asking. Each one re-enters this skill from Step 0 for its own repo (recursion — a child with its own `.gitmodules` becomes a coordinator in turn).
 
 ### Aggregation
 
@@ -60,6 +64,37 @@ For every repo marked `relevant: true`, spawn a `cycle-worker` sub-agent (`agent
 5. **Before finalizing "authorship"** (case 2): invoke `deterministic-context-discovery` (`skills/deterministic-context-discovery/SKILL.md`) searching for the request's concepts under other slugs. If a plausible match is found (qualitative judgment — no numeric threshold, per `docs/tdrs/cycle-commands.md`), do NOT create a new file. Ask the human: "Found `<existing-file>` covering a related concept — is this the same feature (evolution) or genuinely new?" Proceed only after they answer.
 
 Announce the detected mode before proceeding.
+
+## Step 1.5: Workspace isolation (before writing anything)
+
+Per `docs/tdrs/cycle-commands.md` ("workspace isolation"). Skip silently outside a git
+repo. If you are a `cycle-worker` and the coordinator passed an isolation decision,
+apply it here without asking.
+
+1. Resolve the default branch: `git symbolic-ref --short refs/remotes/origin/HEAD`
+   (strip `origin/`), else `main`, else `master`. Read the current branch with
+   `git branch --show-current` (empty = detached HEAD).
+2. Current branch is set and differs from the default → announce
+   "Working on branch `<branch>`." and go on. No question.
+3. Otherwise propose, then wait:
+   > "You're on `<default>`. Isolate this cycle?
+   > A) new branch `cycle/<slug>` here (recommended — uncommitted changes come along)
+   > B) new worktree `../<repo>-<slug>` on `cycle/<slug>` (uncommitted changes stay here)
+   > C) stay on `<default>`"
+   - A → `git switch cycle/<slug>` if it exists, else `git switch -c cycle/<slug>`.
+   - B → `git worktree add ../<repo>-<slug> cycle/<slug>` if the branch exists, else
+     `git worktree add -b cycle/<slug> ../<repo>-<slug>`. Move the session there with
+     the host's native worktree tool if it has one; otherwise tell the human to open a
+     session in that path and re-run `cycle-init`, and stop here.
+   - C → note "staying on `<default>` by choice" and do not ask again this cycle.
+4. Never stash, commit, push or create remote branches here. Never reset or force an
+   existing `cycle/<slug>`.
+5. This question does not count toward the 3-question clarification cap.
+
+**Coordinator**: run this once at the coordinator root (fold it into the first prompt
+you show the human) and pass the chosen option + branch name to every `cycle-worker`.
+Workers apply A or B as a plain `cycle/<slug>` branch in their own repo (no nested
+worktrees inside submodules), and C as "stay".
 
 ## Step 2: Authorship mode
 

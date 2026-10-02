@@ -219,3 +219,45 @@ Feature: ACD Cycle Initialization and Coordination
     When cycle-init or cycle-run evaluates whether to dispatch it
     Then it judges the condition itself and skips the hook silently
     And it does not ask the human to evaluate the condition
+
+  @type:main
+  # why: cycles were written straight onto the default branch, contradicting the
+  # ACD reference rule against pushing directly to protected branches
+  @priority:P1
+  @status:implemented
+  @changed:2026-10-01
+  @reason:workspace-isolation
+  Scenario: cycle-init proposes an isolated branch before writing on the default branch
+    Given a git repo whose current branch is its default branch
+    And a feature request whose slug has been resolved
+    When cycle-init reaches the point where it would first write a file
+    Then it proposes a new branch cycle/<slug>, a new worktree on that branch,
+      or staying on the current branch
+    And it writes no file and creates no branch or worktree until the human chooses
+    And it never stashes, commits or pushes as part of that proposal
+
+  @type:edge
+  # why: a developer already on a feature branch has made the isolation decision;
+  # asking again would be noise
+  @priority:P2
+  @status:implemented
+  @changed:2026-10-01
+  @reason:workspace-isolation
+  Scenario: cycle-init does not ask when already on a non-default branch
+    Given a git repo whose current branch is not its default branch
+    When cycle-init is invoked with a feature request
+    Then it announces the current branch
+    And it proceeds without a workspace-isolation question
+
+  @type:edge
+  # why: docs/tdrs/multi-repo-coordination.md requires one combined prompt across
+  # children, never one escalation per child
+  @priority:P2
+  @status:implemented
+  @changed:2026-10-01
+  @reason:workspace-isolation
+  Scenario: coordinator asks the isolation question once for all child repos
+    Given a coordinator repo on its default branch with relevant child submodules
+    When the human chooses a workspace-isolation option at the coordinator
+    Then every cycle-worker applies that same option and branch name in its own repo
+    And no cycle-worker asks the human the isolation question again

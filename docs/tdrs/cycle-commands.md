@@ -37,6 +37,42 @@ This project uses its own vocabulary (`cycle-init`, `cycle-run`, `cycle-validate
 
 All other authorship/evolution rules (context loading, intent clarity assessment, context gap assessment, critique cycle, `@constraints` authoring) are defined in full in `plugins/cliplin-v2/skills/cycle-init/SKILL.md`.
 
+## `cycle-init` workspace isolation (proposal, never automatic)
+
+Runs once, after the feature slug and mode are known (worker Step 1) and **before any
+file is written**. Purpose: keep spec and implementation work off the default branch
+(the ACD reference forbids pushing directly to protected branches) without turning
+this into a hard gate.
+
+1. Not a git repo → skip silently.
+2. Current branch is **not** the default branch (resolved from `origin/HEAD`, falling
+   back to `main`, then `master`) and HEAD is not detached → announce the branch in
+   one line and continue. No question.
+3. On the default branch, or detached HEAD → propose, and wait for the answer:
+   - **A — new branch** `cycle/<slug>` in the current working tree (recommended;
+     uncommitted changes travel with it).
+   - **B — new worktree** at `../<repo-name>-<slug>` on branch `cycle/<slug>`.
+     Uncommitted changes stay in the original tree; say so. If the host has a native
+     worktree tool, use it to move the session there; otherwise the agent tells the
+     human to open a session in that path and re-invoke `cycle-init` — it does not
+     keep writing into the original tree.
+   - **C — stay** on the current branch. A legitimate human choice; record it in the
+     announcement and do not ask again in this cycle.
+4. `cycle/<slug>` already exists (e.g. resuming an evolution) → option A/B switch to
+   it instead of creating it; never reset or force it.
+5. Never stash, commit, push, or create remote branches as part of this step.
+6. This proposal does not count toward the 3-question clarification cap
+   (`docs/tdrs/clarification-limits.md` caps intent questions only).
+7. **Coordinator**: propose once, at the coordinator root, as part of a single
+   prompt. The chosen option and branch name are passed to every `cycle-worker`,
+   which applies them in its own repo without asking again (same one-prompt rule as
+   `docs/tdrs/multi-repo-coordination.md`). In a child repo, A and B both become a
+   plain `cycle/<slug>` branch — no worktrees nested inside submodules.
+
+This is a proposal only — not the worktree-isolation daemon set aside in
+`docs/adrs/000-cliplin-v2-agent-native.md` (item 6), and not a substitute for remote
+branch protection.
+
 ## `cycle-run`
 
 Session rules, defined in full in `plugins/cliplin-v2/skills/cycle-run/SKILL.md`: session size (max 3 scenarios), TDD, escalation trigger handling, session close rules. The last step of session close is `cycle-validate` (see below), executed in the same conversation, not deferred to a git hook.
