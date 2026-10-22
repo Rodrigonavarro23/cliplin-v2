@@ -11,6 +11,8 @@ summary: "File layout for distributing one Cliplin v2 payload to Claude Code and
 
 No file under this plugin's tree may be a compiled binary or require a build step (no `cargo build`, no `pip install` of a project-owned package, no per-OS artifact). Every file is plain text: Markdown (skills, agents), JSON (manifest), YAML (templates), or POSIX shell (hooks) using only tools assumed present on a developer machine (`bash`, `grep`, `git`).
 
+A skill MAY ship a helper script in `python3` when it uses the standard library only (no `pip install`, no third-party import, no build step) and is run with `python3 -I`. `python3` is not assumed present: a skill whose script cannot run MUST still complete without it, saying what it skipped (first use: `docs/tdrs/spec-review.md`).
+
 This rules out per-architecture compiled binaries and any hook that registers a binary MCP server — patterns that add real deployment weight for content whose actual value is text.
 
 ## Layout
@@ -25,7 +27,8 @@ cliplin/
 │   ├── cycle-init/SKILL.md
 │   ├── cycle-run/SKILL.md
 │   ├── deterministic-context-discovery/SKILL.md
-│   └── context-summary-sync/SKILL.md
+│   ├── context-summary-sync/SKILL.md
+│   └── spec-review/{SKILL.md,lint.py}
 ├── agents/
 │   ├── scout.md
 │   └── cycle-worker.md
