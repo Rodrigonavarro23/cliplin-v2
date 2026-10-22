@@ -42,9 +42,13 @@ findings and concrete improvements; you never fix anything yourself.
 ## 1. Resolve scope and mode
 
 - **Scope**: whole tree (default); one or more paths; a feature slug (→ the `.feature`, its
-  `<slug>.checklist.md` and every doc in its `governed_by`); or `--since <ref>` (→
-  `git diff --name-only <ref>...HEAD -- docs .cliplin/context-summary.yaml` plus uncommitted
-  changes from `git status --porcelain`).
+  `<slug>.checklist.md` and every doc in its `governed_by`); or `--since <ref>` — pass it to the
+  lint (`--since <ref>`), which lists the specs changed since that reference (committed, staged,
+  unstaged or untracked; deleted ones skipped). Review exactly that list; the documents they rely
+  on are read only as excerpts. Without the lint, build the same list with
+  `git diff --name-only <ref>...HEAD`, `git diff --name-only HEAD` and
+  `git ls-files --others --exclude-standard`, keeping `docs/**/*.feature|*.md` and
+  `.cliplin/context-summary.yaml`.
 - **Mode**: `report` (default) or `result-only` — chosen when the caller asks for it, or when the
   working copy may not be written (a read-only harness). When unsure whether you may write, use
   `result-only`.
@@ -69,7 +73,7 @@ Output: TSV `severity  check_id  path:line  fix  message`; counts on stderr. Ope
 finding per check id you report and confirm it; drop any false one and list it under calibration
 with the check id that produced it.
 
-If `python3` is missing or the script cannot run, skip this pass, run the judgment pass alone, and
+Check first with `command -v python3`. If `python3` is missing or the script cannot run, skip this pass, run the judgment pass alone, and
 say in the answer (and the report) that the lint was unavailable and why.
 
 ## 3. Judgment pass (reading)
@@ -121,6 +125,9 @@ Write in the human's language (check ids and quoted text as they are), with this
 |---|---|---|---|---|---|---|
 
 ## Cross-cutting patterns
+
+## Lint, not verified
+<lint findings you did not open, as `check_id path:line message` — never mixed into the tables above>
 
 ## Lint calibration
 - False positives: <check id, example, why> (or "none")

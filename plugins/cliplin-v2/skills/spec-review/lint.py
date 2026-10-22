@@ -10,7 +10,9 @@ Severities: blocker | major | minor | info.  Fix: editorial | requires-cycle-ini
 Counts go to stderr.
 
 Usage:
-    python3 -I <plugin root>/skills/spec-review/lint.py [--root <repo>] [PATH ...]
+    python3 -I <plugin root>/skills/spec-review/lint.py [--root <repo>] [--since <ref>] [PATH ...]
+--since <ref> checks only the specs changed since <ref> (committed, staged, unstaged or untracked),
+using read-only git commands; deleted specs are skipped.
 With no PATH, every spec under docs/ plus .cliplin/context-summary.yaml is checked, with the
 cross-file checks (duplicate ids, orphans, context-summary reach). A PATH may be a file or a directory.
 """
@@ -18,6 +20,7 @@ import argparse
 import glob
 import os
 import re
+import subprocess
 import sys
 from datetime import date
 
@@ -549,14 +552,38 @@ def collect(root, targets):
     return sorted(set(out))
 
 
+def is_spec(f):
+    return (f.startswith("docs/") and f.endswith((".feature", ".md"))) or f == ".cliplin/context-summary.yaml"
+
+
+def changed_since(root, ref):
+    """Specs changed since ref: committed (ref...HEAD), staged, unstaged and untracked. Read-only git."""
+    def git(*args):
+        r = subprocess.run(["git", "-C", root, *args], capture_output=True, text=True)
+        if r.returncode != 0:
+            sys.exit(f"error: git {' '.join(args)}: {r.stderr.strip()}")
+        return [l for l in r.stdout.splitlines() if l.strip()]
+    names = set(git("diff", "--name-only", f"{ref}...HEAD"))
+    names |= set(git("diff", "--name-only", "HEAD"))
+    names |= set(git("ls-files", "--others", "--exclude-standard"))
+    return sorted(f for f in names if is_spec(f) and os.path.isfile(os.path.join(root, f)))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=".")
+    ap.add_argument("--since", metavar="REF")
     ap.add_argument("paths", nargs="*")
     a = ap.parse_args()
     root = os.path.abspath(a.root)
-    full = not a.paths
-    files = collect(root, a.paths or ["docs", ".cliplin/context-summary.yaml"])
+    if a.since:
+        targets = changed_since(root, a.since) + list(a.paths)
+        print(f"# since {a.since}: {len(targets)} changed spec(s)", file=sys.stderr)
+        full = False
+        files = collect(root, targets) if targets else []
+    else:
+        full = not a.paths
+        files = collect(root, a.paths or ["docs", ".cliplin/context-summary.yaml"])
     tdr_ids, adr_nums = {}, {}
     governed_all, summary_refs = set(), set()
     for f in files:

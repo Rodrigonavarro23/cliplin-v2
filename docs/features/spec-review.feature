@@ -35,7 +35,7 @@ Feature: Spec review — how a project's specs are written, against Cliplin's ow
 
   @type:main
   @priority:P1
-  @status:new
+  @status:implemented
   @changed:2026-10-22
   Scenario: Reviewing only what changed since a reference
     Given a repo where two specs changed since a given reference and others did not
@@ -67,7 +67,7 @@ Feature: Spec review — how a project's specs are written, against Cliplin's ow
   @type:edge
   # why: plugin-packaging allows a standard-library python3 helper only if the skill completes without it
   @priority:P2
-  @status:new
+  @status:implemented
   @changed:2026-10-22
   Scenario: Without python the review still runs and says the lint was skipped
     Given a machine where python3 is not available
@@ -78,7 +78,7 @@ Feature: Spec review — how a project's specs are written, against Cliplin's ow
   @type:edge
   # why: human decision 2026-10-22 — the review applies Cliplin's framework rules only, never one project's conventions
   @priority:P2
-  @status:new
+  @status:implemented
   @changed:2026-10-22
   Scenario: A project's own writing convention is not reported as a defect
     Given a technical decision whose rules carry dated "Amended" notes and a "RESOLVED" line
@@ -89,7 +89,7 @@ Feature: Spec review — how a project's specs are written, against Cliplin's ow
   @type:complementary
   # why: practice proven in the wedov2 spec reviewer — unverified lint output must never pass as a verified finding
   @priority:P3
-  @status:new
+  @status:implemented
   @changed:2026-10-22
   Scenario: Lint output the reviewer did not confirm is kept apart from verified findings
     Given a lint result with a finding the reviewer did not open and another that is wrong

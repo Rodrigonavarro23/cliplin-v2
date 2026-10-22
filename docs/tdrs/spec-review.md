@@ -22,7 +22,7 @@ summary: "The spec-review skill reviews a repo's specs for form and style agains
 
 ## The lint (mechanical pass)
 
-- `skills/spec-review/lint.py`, run as `python3 -I <plugin root>/skills/spec-review/lint.py [--root <repo>] [PATH ...]`, standard library only (`docs/tdrs/plugin-packaging.md`). It only reads and prints one finding per line as TSV `severity<TAB>check_id<TAB>path:line<TAB>fix<TAB>message` (`fix` is `editorial` or `requires-cycle-init`), counts to stderr. With no PATH it checks the whole tree including cross-file checks (X-01, C-04).
+- `skills/spec-review/lint.py`, run as `python3 -I <plugin root>/skills/spec-review/lint.py [--root <repo>] [--since <ref>] [PATH ...]` (`--since` lists the changed specs itself, with read-only git commands), standard library only (`docs/tdrs/plugin-packaging.md`). It only reads and prints one finding per line as TSV `severity<TAB>check_id<TAB>path:line<TAB>fix<TAB>message` (`fix` is `editorial` or `requires-cycle-init`), counts to stderr. With no PATH it checks the whole tree including cross-file checks (X-01, C-04).
 - Heuristic thresholds live at the top of the script and are labelled `heuristic` in their findings.
 - A lint finding the reviewer has not read is reported as `lint, not verified`, never as verified. At least one finding per reported check id is opened and confirmed; a false one is dropped and listed under calibration with the check id that produced it.
 - When `python3` is not available or the script is missing, the review runs the judgment pass only and says, in the report and the answer, that the lint was unavailable and why.
@@ -39,7 +39,7 @@ summary: "The spec-review skill reviews a repo's specs for form and style agains
 - The `Feature:` description is human-owned: a finding there never proposes replacement text.
 - Language of a spec is never a defect; only a switch of language inside one document is `minor`.
 - A defect repeated in many files is one pattern entry (count and three examples), not one row per file.
-- Report sections: summary (scope, coverage, counts, verdict line), top-10 improvements, findings per document, cross-cutting patterns, lint calibration (false positives, false negatives), out of scope.
+- Report sections: summary (scope, coverage, counts, verdict line), top-10 improvements, findings per document, cross-cutting patterns, lint findings not verified (kept apart from every verified finding), lint calibration (false positives, false negatives), out of scope.
 
 ## Catalog (framework rules only)
 
